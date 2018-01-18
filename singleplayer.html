@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>THREE.js</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+        <link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
+        <script src="http://codemirror.net/lib/codemirror.js"></script>
+        <script src="http://codemirror.net/addon/edit/matchbrackets.js"></script>
+        <script src="http://codemirror.net/addon/edit/continuecomment.js"></script>
+        <script src="http://codemirror.net/mode/javascript/javascript.js"></script>
+
+        <script src="build/three.min.js"></script>
+        <script src="js/renderers/Projector.js"></script>
+        <script src="js/renderers/CanvasRenderer.js"></script>
+
+		<script src="https://use.fontawesome.com/19f8ec3403.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+		<style>
+			body {
+				font-family: Arial;
+				margin: 0px;
+				overflow: hidden;
+				background-color: #153F46;
+			}
+            .button_green {
+                 background-color: #4CAF50;
+                 border: none;
+                 color: white;
+                 padding: 15px 32px;
+                 text-align: center;
+                 text-decoration: none;
+                 display: inline-block;
+                 font-size: 16px;
+             }
+            .button_red {
+                background-color: #f44336;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+            }
+
+            .button_yellow {
+                background-color: #F4C20B;
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+            }
+
+            .button_arrow{
+                background-color: #003C46;
+                border: none;
+				color: white;
+                padding: 10px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+            }
+			
+			.screen {
+				display: table;
+				width: 100%;
+			}
+			
+			.left-half {
+			  background-color: #ff9e2c;
+			  position: absolute;
+			  left: 0px;
+			  width: 50%;
+			}
+			
+			.right-half {
+			  background-color: #b6701e;
+			  position: absolute;
+			  right: 0px;
+			  width: 50%;
+			}
+			
+			.instructions {
+				clear:both;
+				position:fixed;
+				top:0;
+				height:50%;
+				width:50%;
+				background-color: #153F46;
+				color:#FFFFFF;
+				text-align:left;
+			}
+
+			@media screen and (max-width: 1500px) {
+				.instructions {
+					overflow: scroll;
+				}
+				.instructions_text{
+					overflow: scroll;
+				}
+			}
+            
+            .instructions_title{
+                background-color: #007D93;
+                padding: 10px;
+                padding-left: 20px;
+            }
+
+            .instructions_text{
+                padding: 20px;
+                padding-left: 20px;
+                padding-right: 20px;
+                margin: auto;
+                font-size:14px;
+                color: white;
+            }
+
+            a{
+                color: white;
+            }
+			
+			.code {
+				clear:both;
+				position:fixed;
+				bottom: 50px;
+				height:50%;
+				width:50%;
+				color:#FFFFFF;
+				font-size:16px;
+				text-align:left;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="screen">
+			<div class="left-half">
+				<div class="instructions">
+                    <div style="height: 40px; background-color: #003C46">
+                        <button id="goback" style="float: left; height: 40px; display: none"  class="button_arrow" onclick="prev_level()"><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+                        <button id="gonext" style="float: right; height: 40px;" class="button_arrow" onclick="next_level()"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="instructions_title">
+                        <b>OPIS</b>
+                    </div>
+                    <div id="text1" class="instructions_text">
+                        Three.js je JavaScript knjižnica, ki poenostavlja rabo WebGL in s tem uporabo in prikaz 3D grafičnih elementov v spletnih brskalnikih. Z njeno pomočjo lahko izdelamo animacije in spletne igre, ki tečejo v brskalnikih in so zato prenosljive in neodvisne od operacijskega sistema.
+                        <br><br>
+                        Glavni elementi vsake THREE.js aplikacije so <a href="https://threejs.org/docs/#api/scenes/Scene">scena</a>, <a href="https://threejs.org/docs/#api/renderers/WebGLRenderer">renderer</a> in <a href="https://threejs.org/docs/#api/cameras/PerspectiveCamera">kamera</a>. Da bo izgradnja naše aplikacije preprostejša, smo vse tri že dodali, tako kot tudi
+                        mačko (našega glavnega junaka igre), tla in osnovno logiko premikanja, ki jo lahko preizkusite s pritiskom na tipke W, A, S in D.
+                    </div>
+                    <div id="text2" style="display: none" class="instructions_text">
+                        Barvo posameznega objekta na sceni opisuje njegov material. THREE.js vsebuje malo morje materialov, ki poleg barve opredeljujejo tudi, kako se od njih odbija svetloba in njihovo senčenje. Več o materialih lahko
+                        najdeš v <a href="https://threejs.org/docs/#api/materials/Material">dokumentaciji</a>.
+                    </div>
+                    <div id="text3" style="display: none" class="instructions_text">
+                        Položaj, rotacija in povečava vsakega objekta v 3D prostoru so predstavljeni s tremi koordinatami, x, y in z. x in z navadno opisujeta vodoravno ravnino (v našem primeru npr. tla), y pa višino.
+                    </div>
+					<div id="text4" style="display: none" class="instructions_text">
+						V tej točki se bomo ukvarjali z razdaljami v prostoru. Ena najpopularnejših metrik je <a href="https://en.wikipedia.org/wiki/Euclidean_distance">Evklidska razdalja</a>, ki z uporabo vektorskega produkta
+						pove ravno razdaljo med dvema točkama v prostoru: D = sqrt((t1.x - t2.x)^2 + (t1.y - t2.y)^2 + (t1.z - t2.z)^2)
+					</div>
+					<div id="text5" style="display: none;" class="instructions_text">
+						<div style="font-size: 16px"><b>Čestitam</b>, prišli ste do konca!</div>
+						<br><br>
+						Če te zanima kaj več, si lahko pogledaš še:
+						<br>
+						- <a href="https://threejs.org/">Primeri uporabe THREE.js</a>
+						<br>
+						- <a href="https://threejs.org/examples/">Dokumentacija knjižnice THREE.js s primeri</a>
+						<br>
+						- <a href="https://github.com/mrdoob/three.js/">Git reporzitorij s knjižnico</a>
+						<br>
+						- <a href="http://blog.teamtreehouse.com/the-beginners-guide-to-three-js">Predstavitev in navodila namestitve in uporave THREE.js po korakih</a>
+						<br>
+						- <a href="https://medium.com/@necsoft/three-js-101-hello-world-part-1-443207b1ebe1">THREE.js 101</a>
+					</div>
+
+                    <div id="n_title" class="instructions_title">
+                        <b>NAVODILA</b>
+                    </div>
+                    <div id="navodila1" class="instructions_text">
+                        Na sceni so sicer že postavljeni objekti, vendar niso osvetljeni in zato izgledajo črni. THREE.js podpira več različnih vrst luči in v tej točki jih bomo nekaj dodali.
+                        V spodnjem primeru je že nastavljena usmerjena luč (directional light), tvoja naloga pa je, da dodaš še kakšno luč, npr. <a href="https://threejs.org/docs/#api/lights/AmbientLight">ambientno</a> in/ali <a href="https://threejs.org/docs/#api/lights/HemisphereLight">hemisferno</a> luč.
+                        Ne pozabi inicializiranih luči tudi dodati v sceno s klicem scene.add('ime_luči').
+                        <br><br>
+                        Vrednosti oblike 0x123456 prestavljajo barvo luči v RGB obliki. Če želiš različne barve luči, si lahko pomagaš s <a href="https://www.webpagefx.com/web-design/color-picker/">to spletno stranjo</a>, pri čemer vrednost na vrhu kopiraš na desno stran (0x'vrednost').
+                    </div>
+                    <div id="navodila2" style="display: none" class="instructions_text">
+                        Tvoja naloga je, da mački spremeniš barvo. To lahko dosežeš na več načinov, npr. tako, da mu zamenjaš material ali pa obstoječemu materialu spremeniš barvo. Napišeš lahko tudi funkcijo, ki bo mački barvo spremenila v naključno.
+                        <br><br>
+                        Mačka je shrajena v spremenljivki z imenom <i>player</i>, do njenega materiala pa lahko dostopamo s klicem <i>player.material</i>. Koda, napisana v tem delu, se bo izvedla šele ob pritisku na tipko 'E'. <i>Opomba</i>: mačkina ušesa sta ločena objekta, zato lastnost  <i>player.material</i> na vpliva na njiju in
+                        moraš, v kolikor ju želiš manipulirati, najti otroke objekta <i>player</i>. Rešitev si lahko ogledaš s klikom na 'Rešitev'.
+                    </div>
+                    <div id="navodila3" style="display: none" class="instructions_text">
+                        V tem delu bomo v sceno postavili gozd. Položaj posameznega objekta lahko spreminjamo s klicem object.position.set(x, y, z), rotacijo s klicem object.rotation.set(x, y, z), velikost pa s klicem object.scale.set(x, y, z).
+						Koordinate na tleh (x, z) gredo od 0 do 350. V sceno poskusi z uporabo Math.random() čim lepše razporediti poljubno število dreves.
+                    </div>
+					<div id="navodila4" style="display: none" class="instructions_text">
+						S pomočjo Evklidske razdalje bomo v vsakem koraku izvajanja aplikacije računali razdaljo med mačko in drevesi. Drevesa bomo, če so dovolj blizu mačke, obarvali z njeno barvo. Tvoja naloga je, da implementiraš
+						formulo za evklidsko razdaljo. <i>Namig</i>: ker se drevesa nahajajo na isti višini kot player, lahko y koordinato zanemariš, ker se odštejeta (t1.y - t2.y = 0).
+					</div>
+
+				</div>
+
+				<div id="c_title" class="code" style="font-size: 14px; margin-right: 10px">
+                    <textarea style="display: none" id="code1">
+dirLight = new THREE.DirectionalLight(0x999999, 1);
+dirLight.position.set(200, 300, 200);
+
+scene.add(dirLight);
+// zamenjaj null s primerno inicializacijo
+ambLight = null;
+hemLight = null;
+                    </textarea>
+                    <textarea style="display: none" id="code1_og">
+dirLight = new THREE.DirectionalLight(0x999999, 1);
+dirLight.position.set(200, 300, 200);
+scene.add(dirLight);
+
+// zamenjaj null s primerno inicializacijo
+ambLight = null;
+hemLight = null;
+                    </textarea>
+                    <textarea style="display: none" id="code1_resitev">
+dirLight = new THREE.DirectionalLight(0x999999, 1);
+dirLight.position.set(200, 300, 200);
+scene.add(dirLight);
+
+ambLight = new THREE.AmbientLight(0x777777);
+scene.add(ambLight);
+
+hemLight = new THREE.HemisphereLight(0xffffff, 0xffffff, .1);
+scene.add(hemLight);
+                    </textarea>
+                    <textarea style="display: none" id="code2">
+player.material = /* */;
+                    </textarea>
+                    <textarea style="display: none" id="code2_og">
+player.material = /* */;
+                    </textarea>
+                    <textarea style="display: none" id="code2_resitev">
+// izracuna nakljucno hex vrednost barve
+var letters = '0123456789ABCDEF';
+var color = '#';
+for (var i = 0; i < 6; i++ ) {
+    color += letters[Math.floor(Math.random() * 16)];
+}
+
+player.material = new THREE.MeshLambertMaterial({color: color, ambient: color});
+// poskrbi se za material otrok (ušes)
+player.traverse(function(child){
+    child.material = new THREE.MeshLambertMaterial({color: color, ambient: color});
+});
+                    </textarea>
+                    <textarea style="display: none" id="code3">
+var loader = new THREE.JSONLoader();
+drevesa = new THREE.Object3D();
+stevilo_dreves = 20;
+// nalozi 3d model
+loader.load("models/threeModel.js", function(geometry){
+	drevo_model = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0x999999}));
+	for(i = 0; i < stevilo_dreves; i++) {
+		// ustvari novo instanco objekta
+		drevo = drevo_model.clone();
+    	/* spremeni polozaj, rotacijo,... */
+		drevesa.add(drevo);
+	}
+});
+scene.add(drevesa);
+                    </textarea>
+					<textarea style="display: none" id="code3_og">
+var loader = new THREE.JSONLoader();
+drevesa = new THREE.Object3D();
+stevilo_dreves = 20;
+// nalozi 3d model
+loader.load("models/threeModel.js", function(geometry){
+	drevo_model = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0x999999}));
+	for(i = 0; i < stevilo_dreves; i++) {
+		// ustvari novo instanco objekta
+		drevo = drevo_model.clone();
+    	/* spremeni polozaj, rotacijo,... */
+		drevesa.add(drevo);
+	}
+});
+scene.add(drevesa);
+                    </textarea>
+					<textarea style="display: none" id="code3_resitev">
+var loader = new THREE.JSONLoader();
+drevesa = new THREE.Object3D();
+stevilo_dreves = 20;
+// nalozi 3d model
+loader.load("models/threeModel.js", function(geometry){
+	drevo_model = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0x999999}));
+	for(i = 0; i < stevilo_dreves; i++) {
+		// ustvari novo instanco objekta
+		drevo = drevo_model.clone();
+		drevo.scale.set(3,3,3);
+		randomX = Math.floor((Math.random() * 350)) + 1;
+		randomZ = Math.floor((Math.random() * 350)) + 1;
+		drevo.position.set(randomX, 3, randomZ);
+		drevo.rotation.set(0, i*2, 0);
+		drevesa.add(drevo);
+	}
+});
+scene.add(drevesa);
+                    </textarea>
+					<textarea style="display: none" id="code4">
+for(i=0; i<drevesa.children.length; i++){
+	/* preveri, ce je macka dovolj blizu drevesa */
+	pColor = player.material.color.getHex();
+	drevesa.children[i].material = new THREE.MeshLambertMaterial({color: pColor, ambient: pColor});
+}
+                    </textarea>
+					<textarea style="display: none" id="code4_og">
+for(i=0; i<drevesa.children.length; i++){
+	/* preveri, ce je macka dovolj blizu drevesa */
+	pColor = player.material.color.getHex();
+	drevesa.children[i].material = new THREE.MeshLambertMaterial({color: pColor, ambient: pColor});
+}
+                    </textarea>
+					<textarea style="display: none" id="code4_resitev">
+for(i=0; i<drevesa.children.length; i++){
+	drevo = drevesa.children[i];
+	dx = Math.pow(drevo.position.x - player.position.x, 2);
+	dz = Math.pow(drevo.position.z - player.position.z, 2);
+	var dist = Math.sqrt(dx + dz);
+	if(dist < 4){
+		pColor = player.material.color.getHex();
+		drevesa.children[i].material = new THREE.MeshLambertMaterial({color: pColor, ambient: pColor});
+	}
+}
+                    </textarea>
+                    <div style="width: 100%; background-color: #003C46">
+                        <div style="float: right;" >
+                            <button id="resitev" class="button_yellow" onclick="resitev()">Rešitev</button>
+                            <button id="ponastavi" class="button_red" onclick="ponastavi()">Ponastavi</button>
+                            <button id="zazeni" class="button_green" onclick="zazeni()">Zaženi</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="container" class="right-half"></div>
+        </div>
+        <script>
+			var container, camera, scene, renderer, player, t, gl;		
+			var Keys = {up: false, down: false, left: false, right: false};
+			var speed = 1, rotation = 3;
+			var ed;
+            var dirLight, ambLight, hemLight;
+			var level = 1;
+			var level2 = "";
+			var level4 = "";
+
+			var playerPosY;
+			var drevesa;
+
+            init();
+            animate();
+
+			function init(){
+
+				ed = CodeMirror.fromTextArea(document.getElementById("code1"), {
+					mode: "javascript",
+					theme: "default",
+					lineNumbers: true
+				});
+				ed.setSize("100%", "100%");
+
+                camera = new THREE.PerspectiveCamera(60, (window.innerWidth/2)/window.innerHeight, 10, 1000);
+				container = document.getElementById('container');
+
+				scene = new THREE.Scene();
+
+				var playerGeometry = new THREE.SphereGeometry(2, 75, 75);
+				var playerMaterial = new THREE.MeshLambertMaterial({color: 0xffffff});
+				player = new THREE.Mesh(playerGeometry, playerMaterial);
+				playerPosY = 6.5;
+				player.position.y = 6.5;
+				player.position.x = 300;
+				player.position.z = 120;
+				loader = new THREE.JSONLoader();
+				loader = loader.load("models/catears.js", function(geometry){
+					t = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({color: 0x999999}));
+					instance = t.clone();
+					instance.scale.set(0.04, 0.04, 0.04);
+					instance.rotation.y = 2.35;
+					instance.rotation.x = 1.575;
+					player.add(instance);
+					instance.position.y = 1;
+					instance.position.x = 1.2;
+
+					instance = t.clone();
+					instance.scale.set(0.04, 0.04, 0.04);
+					instance.rotation.y = -2.35;
+					instance.rotation.x = 1.575;
+					player.add(instance);
+					instance.position.y = 1;
+					instance.position.x = -1.2;
+				});
+
+				var tgroup = sestaviTla();
+				scene.add(tgroup);
+
+                renderer = new THREE.WebGLRenderer();
+                renderer.setClearColor(0x3EB9CF);
+                renderer.setSize(window.innerWidth / 2, window.innerHeight );
+                renderer.setDepthTest(true);
+                renderer.shadowMapEnabled = true;
+                renderer.shadowMapSoft = true;
+                container.appendChild(renderer.domElement);
+
+                player.add(camera);
+				scene.add(player);
+                camera.position.z = 30;
+                camera.position.y = 10;
+
+				window.addEventListener("resize", onWindowResize, false );
+			}
+
+			function onWindowResize() {
+				camera = new THREE.PerspectiveCamera(60, (window.innerWidth/2)/window.innerHeight, 10, 1000);
+				camera.updateProjectionMatrix();
+				player.add(camera);
+				camera.position.z = 30;
+				camera.position.y = 10;
+				renderer.setSize(window.innerWidth/2, window.innerHeight);
+			}
+
+			window.onkeydown = function(e) {
+				var kc = e.keyCode;
+				//e.preventDefault();
+				if      (kc === 65 ) Keys.left = true;
+				else if (kc === 87) Keys.up = true;
+				else if (kc === 68) Keys.right = true;
+				else if (kc === 83) Keys.down = true;
+				else if (kc === 69){
+					if(level > 1) {
+						try{
+							eval(level2);
+						}
+						catch(err) {
+							console.log(err);
+						}
+					}
+				}
+			};
+			window.onkeyup = function(e) {
+				var kc = e.keyCode;
+				e.preventDefault();
+				if      (kc === 65) Keys.left = false;
+				else if (kc === 87) Keys.up = false;
+				else if (kc === 68) Keys.right = false;
+				else if (kc === 83) Keys.down = false;
+			};
+
+			function sestaviTla(){
+
+				var terrainGroup = new THREE.Object3D();
+				var texture = new THREE.ImageUtils.loadTexture('models/terrain/textures/basetexture.jpg');
+				var material = new THREE.MeshLambertMaterial({color: 0x2FE934});
+				var loader = new THREE.JSONLoader();
+				loader.load("models/terrain/grass.js", function(geometry){
+					terrainGrass = new THREE.Mesh(geometry, material);
+					for(i=0; i<=400; i+=40){
+						for(j=0; j<=400; j+=40){
+							t = terrainGrass.clone();
+							terrainGrass.scale.set(5, 5, 5);
+							terrainGrass.position.set(i, 0, j);
+							t.receiveShadow = true;
+							terrainGroup.add(t);
+						}
+					}
+				});
+				return terrainGroup;
+			}
+
+			function degToRad(deg) {
+				return deg * Math.PI / 180;
+			}
+
+			function playerMovement(){			
+				var direction;
+				if (Keys.up) {
+					scene.updateMatrixWorld();
+					var vector = new THREE.Vector3();
+					vector.setFromMatrixPosition(camera.matrixWorld);
+					direction = player.position.clone().sub(vector).normalize();
+					player.position.add(direction.clone().multiplyScalar(speed));
+					player.position.y = playerPosY;
+					checkIfInside();
+				}
+				else if (Keys.down){
+
+					scene.updateMatrixWorld();
+					var vector = new THREE.Vector3();
+					vector.setFromMatrixPosition(camera.matrixWorld);
+					direction = player.position.clone().sub(vector).normalize();
+					player.position.sub(direction.clone().multiplyScalar(speed));
+					player.position.y = playerPosY;
+					checkIfInside();
+				}
+				if (Keys.left) {
+					player.rotation.y += degToRad(rotation);
+				}
+				else if (Keys.right) {
+					player.rotation.y -= degToRad(rotation);
+				}
+			}
+
+			function checkIfInside(){
+				if(player.position.x < -5) player.position.x = -5;
+				if(player.position.z < -5) player.position.z = -5;
+				if(player.position.x > 405) player.position.x = 405;
+				if(player.position.z > 405) player.position.z = 405;
+			}
+
+			function checkCollisionDrevo(){
+				if(level > 3) {
+					try{
+						eval(level4);
+					}
+					catch(err) {
+						console.log(err);
+					}
+				}
+			}
+
+            function resitev(){
+                var resitev = $("#code"+level+"_resitev").val();
+                ed.setValue(resitev);
+            }
+
+            function zazeni(){
+
+                if(level == 1) {
+                    scene.remove(dirLight);
+                    scene.remove(ambLight);
+                    scene.remove(hemLight);
+
+					try{
+						eval(ed.getValue());
+					}
+					catch(err) {
+						console.log(err);
+					}
+                }
+                if(level == 2) level2 = ed.getValue();
+				if(level == 4) level4 = ed.getValue();
+
+                scene.traverse( function ( child ) {
+                    if ( child instanceof THREE.Mesh ) {
+                        child.material.needsUpdate = true;
+                    }
+                });
+
+				if(level == 3) {
+					try{
+						eval(ed.getValue());
+					}
+					catch(err) {
+						console.log(err);
+					}
+				}
+            }
+
+			function ponastavi(){
+
+                if(level == 1){
+                    scene.remove(dirLight);
+                    scene.remove(ambLight);
+                    scene.remove(hemLight);
+                    scene.traverse( function ( child ) {
+                        if ( child instanceof THREE.Light ) {
+                            scene.remove(child);
+                        }
+                    });
+                    scene.traverse( function ( child ) {
+                        if ( child instanceof THREE.Mesh ) {
+                            child.material.needsUpdate = true;
+                        }
+                    });
+                    var resitev = $("#code1_og").val();
+                    ed.setValue(resitev);
+                }
+
+                if(level == 2) {
+                    level2 = "";
+                    player.material = new THREE.MeshLambertMaterial({color: 0xffffff});
+                    player.traverse(function(child){
+                        child.material = new THREE.MeshLambertMaterial({color: 0xffffff});
+                    });
+                    var resitev = $("#code2_og").val();
+                    ed.setValue(resitev);
+                }
+
+				if(level == 3){
+					scene.remove(drevesa);
+					var resitev = $("#code3_og").val();
+					ed.setValue(resitev);
+				}
+
+				if(level == 4) {
+					level4 = "";
+					var resitev = $("#code4_og").val();
+					ed.setValue(resitev);
+				}
+            }
+
+			function next_level(){
+                $("#text"+level).hide();
+                $("#navodila"+level).hide();
+                level++;
+				$("#text"+level).show();
+				if(level != 5){
+					$("#navodila"+level).show();
+					var str = $("#code"+level).val();
+					ed.setValue(str);
+				}
+                if(level > 1) $("#goback").show();
+				console.log(level);
+				if(level == 5) {
+					$("#gonext").hide();
+					$("#n_title").hide();
+					$("#c_title").hide();
+				}
+            }
+
+            function prev_level(){
+                $("#text"+level).hide();
+                $("#navodila"+level).hide();
+                level--;
+                $("#text"+level).show();
+                $("#navodila"+level).show();
+
+                var str = $("#code"+level).val();
+				console.log(str);
+                ed.setValue(str);
+
+				$("#n_title").show();
+				$("#c_title").show();
+
+                if(level == 1) $("#goback").hide();
+				if(level < 5) $("#gonext").show();
+            }
+
+			/*********************************************************************************************/
+			
+			function animate() {
+				playerMovement();
+				requestAnimationFrame(animate);
+				render();
+				if(drevesa) checkCollisionDrevo();
+			}
+
+			function render() {		
+				renderer.render(scene, camera);
+			}
+		</script>
+	</body>
+</html>
